@@ -6,14 +6,14 @@ using SecondBrain.Models.Entities;
 
 namespace SecondBrain.Services;
 
-public class TransactionService : CrudService<Transaction>
+public class ExpectedTransactionService : CrudService<ExpectedTransaction>
 {
 
-    public TransactionService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
+    public ExpectedTransactionService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
     {      
     }
 
-    protected override IQueryable<Transaction> GetFilteredQuery(IQueryable<Transaction> query, string search)
+    protected override IQueryable<ExpectedTransaction> GetFilteredQuery(IQueryable<ExpectedTransaction> query, string search)
     {
         if (!string.IsNullOrEmpty(search))
         {
@@ -28,7 +28,7 @@ public class TransactionService : CrudService<Transaction>
         return query;
     }
 
-    protected override IQueryable<Transaction> GetOrderedQuery(IQueryable<Transaction> query, string orderBy, bool ascending = true)
+    protected override IQueryable<ExpectedTransaction> GetOrderedQuery(IQueryable<ExpectedTransaction> query, string orderBy, bool ascending = true)
     {
        switch (orderBy)
        {

@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using AutoMapper;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SecondBrain.Data;
@@ -15,9 +17,6 @@ public class CrudService<T> where T : class, IEntity
     internal DbSet<T> dbSet;
     public IMapper Mapper;
 
-   
-    public virtual Expression<Func<T,bool>> Filter { get; set; }
-
     public CrudService(ApplicationDbContext db , IMapper mapper)
     {
         _db = db;
@@ -25,7 +24,7 @@ public class CrudService<T> where T : class, IEntity
         Mapper = mapper;
     }
 
-    public virtual async Task<T> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true, string[]? includeProperties = null)
+    public virtual async Task<T> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = true)
     {
 
         IQueryable<T> query = GetDbSet();
@@ -40,17 +39,14 @@ public class CrudService<T> where T : class, IEntity
         }
         if (includeProperties != null)
         {
-            foreach (var prop in includeProperties)
-            {
-                query = query.Include(prop);
-            }
+            query = IncludeProperties(query, includeProperties);
         }
 
         return await query.FirstOrDefaultAsync();
     }
 
 
-    public virtual async Task<T> GetAsync(int id, bool tracked = true, string[]? includeProperties = null)
+    public virtual async Task<T> GetAsync(int id,  string? includeProperties =  null, bool tracked = true)
     {
         IQueryable<T> query = GetDbSet();
 
@@ -63,61 +59,60 @@ public class CrudService<T> where T : class, IEntity
 
         if (includeProperties != null)
         {
-            foreach (var prop in includeProperties)
-            {
-                query = query.Include(prop);
-            }
+            query = IncludeProperties(query, includeProperties);
         }
 
         return await query.FirstOrDefaultAsync();
     }
 
 
-    public virtual async Task<List<T>> GetAllAsync()
+    public virtual async Task<List<T>> GetAllAsync(string? includeProperties = null)
     {
         IQueryable<T> query = GetDbSet();
+        if (includeProperties != null)
+        {
+            query = IncludeProperties(query, includeProperties);
+        }
         return await query.ToListAsync();
     }
 
-    public virtual async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter)
+    public virtual async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
     {
         IQueryable<T> query = GetDbSet();
         query = query.Where(filter);
+        if (includeProperties != null)
+        {
+            query = IncludeProperties(query, includeProperties);
+        }
         return await query.ToListAsync();
     }
 
+    public virtual async Task<List<T>> GetAllAsync(string search, string? includeProperties = null)
+    {
+        IQueryable<T> query = GetDbSet();
+        query = GetFilteredQuery(query, search);
+        if (includeProperties != null)
+        {
+            query = IncludeProperties(query, includeProperties);
+        }
+        return await query.ToListAsync();
+    }
+    
     public virtual async Task<List<T>> GetAllAsync(QueryInputModel inputModel, string? includeProperties = null)
     {
         IQueryable<T> query = GetDbSet();
 
-        query = GetFilteredQuery(inputModel, query);
+        query = GetFilteredQuery(query, inputModel.Search);
 
         if (includeProperties != null)
         {
-            foreach (var includeProp in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProp);
-            }
-            
+            query = IncludeProperties(query, includeProperties);
         }
 
-        query = GetOrderedQuery(inputModel, query);
-        
-        query = query
-            .Skip(inputModel.Offset)
-            .Take(inputModel.PageSize);
+        query = GetOrderedQuery(query, inputModel.OrderBy, inputModel.Ascending);
+        query = GetPagedQuery(query, inputModel.PageNumber, inputModel.PageSize);
 
         return await query.ToListAsync();
-    }
-
-    public virtual IQueryable<T> GetFilteredQuery(QueryInputModel inputModel, IQueryable<T> query)
-    {
-        return query;
-    }
-
-    public virtual IQueryable<T> GetOrderedQuery(QueryInputModel inputModel, IQueryable<T> query)
-    {
-        return query;
     }
 
     public virtual async Task<List<T>> GetAllAsync(
@@ -205,20 +200,42 @@ public class CrudService<T> where T : class, IEntity
         }
     }
 
-
     public async Task SaveAsync()
     {
         await _db.SaveChangesAsync();
     }
 
-    public virtual IQueryable<T> GetDbSet()
-    {
-        return this.dbSet;
-    }
-
+    /* Utility */
     public bool ModelExist(int id)
     {
         return dbSet.Any(x => x.Id == id);
+    }
+    protected virtual IQueryable<T> GetDbSet()
+    {
+        return this.dbSet;
+    }
+    protected virtual IQueryable<T> GetFilteredQuery(IQueryable<T> query, string search)
+    {
+        return query;
+    }
+    protected virtual IQueryable<T> GetOrderedQuery(IQueryable<T> query, string orderBy, bool ascending = true)
+    {
+        return query;
+    }
+    protected virtual IQueryable<T> GetPagedQuery(IQueryable<T> query, int pageNumber, int pageSize)
+    {
+        return query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+    }
+    protected virtual IQueryable<T> IncludeProperties(IQueryable<T> query, string includeProperties)
+    {
+        foreach (var prop in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(prop);
+        }
+
+        return query;
     }
 
 }

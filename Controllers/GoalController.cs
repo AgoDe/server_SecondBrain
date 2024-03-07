@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.Models;
-using SecondBrain.Models.Dto.Account;
+using SecondBrain.Models.Dto.Goal;
 using SecondBrain.Models.Entities;
 using SecondBrain.Services;
 
@@ -15,26 +11,26 @@ namespace SecondBrain.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AccountController : ControllerBase
+    public class GoalController : ControllerBase
     {
         protected ApiResponse _response;
-        private AccountService _accountService;
+        private GoalService _goalService;
         private IMapper _mapper;
-        public AccountController(AccountService accountService, IMapper mapper)
+        public GoalController(GoalService goalService, IMapper mapper)
         {
             this._response = new();
-            _accountService = accountService;
+            _goalService = goalService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAccounts([FromQuery]QueryInputModel inputModel)
+        public async Task<ActionResult<ApiResponse>> GetGoals([FromQuery]QueryInputModel inputModel)
         {
             try
             {
-                IEnumerable<Account> accounts = await _accountService.GetAllAsync(inputModel);
+                IEnumerable<Goal> goals = await _goalService.GetAllAsync(inputModel);
 
-                _response.Result = _mapper.Map<List<AccountIndexDto>>(accounts);
+                _response.Result = _mapper.Map<List<GoalIndexDto>>(goals);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -48,7 +44,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse>> GetAccount(int id)
+        public async Task<ActionResult<ApiResponse>> GetGoal(int id)
         {
             try {
 
@@ -59,15 +55,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var goal = await _goalService.GetAsync(id);
+                if (goal == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<AccountDto>(account);
+                _response.Result = _mapper.Map<GoalDto>(goal);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -81,7 +77,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> CreateAccount([FromBody]AccountCreateDto modelDto)
+        public async Task<ActionResult<ApiResponse>> CreateGoal([FromBody]GoalCreateDto modelDto)
         {
             try
             {
@@ -93,9 +89,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(modelDto);
+                Goal model = _mapper.Map<Goal>(modelDto);
 
-                await _accountService.CreateAsync(model);
+                await _goalService.CreateAsync(model);
                 
                 
                 _response.IsSuccess = true;
@@ -112,8 +108,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
     
-        [HttpDelete("{id:int}", Name = "DeleteAccount")]
-        public async Task<ActionResult<ApiResponse>> DeleteAccount(int id)
+        [HttpDelete("{id:int}", Name = "DeleteGoal")]
+        public async Task<ActionResult<ApiResponse>> DeleteGoal(int id)
         {
             try
             {
@@ -125,15 +121,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var goal = await _goalService.GetAsync(q => q.Id == id);
+                if (goal == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                await _accountService.RemoveAsync(account);
+                await _goalService.RemoveAsync(goal);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -147,8 +143,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "UpdateAccount")]
-        public async Task<ActionResult<ApiResponse>> UpdateAccount(int id, [FromBody] AccountUpdateDto updateDto)
+        [HttpPut("{id:int}", Name = "UpdateGoal")]
+        public async Task<ActionResult<ApiResponse>> UpdateGoal(int id, [FromBody] GoalUpdateDto updateDto)
         {
             try {
                 if (updateDto == null || id != updateDto.Id)
@@ -158,9 +154,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(updateDto);
+                Goal model = _mapper.Map<Goal>(updateDto);
 
-                await _accountService.UpdateAsync(model);
+                await _goalService.UpdateAsync(model);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

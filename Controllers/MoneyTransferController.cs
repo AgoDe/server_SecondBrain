@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.Models;
-using SecondBrain.Models.Dto.Account;
+using SecondBrain.Models.Dto.MoneyTransfer;
 using SecondBrain.Models.Entities;
 using SecondBrain.Services;
 
@@ -15,26 +11,26 @@ namespace SecondBrain.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AccountController : ControllerBase
+    public class MoneyTransferController : ControllerBase
     {
         protected ApiResponse _response;
-        private AccountService _accountService;
+        private MoneyTransferService _transferService;
         private IMapper _mapper;
-        public AccountController(AccountService accountService, IMapper mapper)
+        public MoneyTransferController(MoneyTransferService transferService, IMapper mapper)
         {
             this._response = new();
-            _accountService = accountService;
+            _transferService = transferService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAccounts([FromQuery]QueryInputModel inputModel)
+        public async Task<ActionResult<ApiResponse>> GetMoneyTransfers([FromQuery]QueryInputModel inputModel)
         {
             try
             {
-                IEnumerable<Account> accounts = await _accountService.GetAllAsync(inputModel);
+                IEnumerable<MoneyTransfer> transfers = await _transferService.GetAllAsync(inputModel);
 
-                _response.Result = _mapper.Map<List<AccountIndexDto>>(accounts);
+                _response.Result = _mapper.Map<List<MoneyTransferIndexDto>>(transfers);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -48,7 +44,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse>> GetAccount(int id)
+        public async Task<ActionResult<ApiResponse>> GetMoneyTransfer(int id)
         {
             try {
 
@@ -59,15 +55,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var transfer = await _transferService.GetAsync(id);
+                if (transfer == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<AccountDto>(account);
+                _response.Result = _mapper.Map<MoneyTransferDto>(transfer);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -81,7 +77,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> CreateAccount([FromBody]AccountCreateDto modelDto)
+        public async Task<ActionResult<ApiResponse>> CreateMoneyTransfer([FromBody]MoneyTransferCreateDto modelDto)
         {
             try
             {
@@ -93,9 +89,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(modelDto);
+                MoneyTransfer model = _mapper.Map<MoneyTransfer>(modelDto);
 
-                await _accountService.CreateAsync(model);
+                await _transferService.CreateAsync(model);
                 
                 
                 _response.IsSuccess = true;
@@ -112,8 +108,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
     
-        [HttpDelete("{id:int}", Name = "DeleteAccount")]
-        public async Task<ActionResult<ApiResponse>> DeleteAccount(int id)
+        [HttpDelete("{id:int}", Name = "DeleteMoneyTransfer")]
+        public async Task<ActionResult<ApiResponse>> DeleteMoneyTransfer(int id)
         {
             try
             {
@@ -125,15 +121,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var transfer = await _transferService.GetAsync(q => q.Id == id);
+                if (transfer == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                await _accountService.RemoveAsync(account);
+                await _transferService.RemoveAsync(transfer);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -147,8 +143,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "UpdateAccount")]
-        public async Task<ActionResult<ApiResponse>> UpdateAccount(int id, [FromBody] AccountUpdateDto updateDto)
+        [HttpPut("{id:int}", Name = "UpdateMoneyTransfer")]
+        public async Task<ActionResult<ApiResponse>> UpdateMoneyTransfer(int id, [FromBody] MoneyTransferUpdateDto updateDto)
         {
             try {
                 if (updateDto == null || id != updateDto.Id)
@@ -158,9 +154,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(updateDto);
+                MoneyTransfer model = _mapper.Map<MoneyTransfer>(updateDto);
 
-                await _accountService.UpdateAsync(model);
+                await _transferService.UpdateAsync(model);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

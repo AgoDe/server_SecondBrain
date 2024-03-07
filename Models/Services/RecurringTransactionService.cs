@@ -1,19 +1,17 @@
-using System.Linq.Expressions;
 using AutoMapper;
 using SecondBrain.Data;
-using SecondBrain.Models;
 using SecondBrain.Models.Entities;
 
 namespace SecondBrain.Services;
 
-public class TransactionService : CrudService<Transaction>
+public class RecurringTransactionService : CrudService<RecurringTransaction>
 {
 
-    public TransactionService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
+    public RecurringTransactionService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
     {      
     }
 
-    protected override IQueryable<Transaction> GetFilteredQuery(IQueryable<Transaction> query, string search)
+    protected override IQueryable<RecurringTransaction> GetFilteredQuery(IQueryable<RecurringTransaction> query, string search)
     {
         if (!string.IsNullOrEmpty(search))
         {
@@ -28,7 +26,7 @@ public class TransactionService : CrudService<Transaction>
         return query;
     }
 
-    protected override IQueryable<Transaction> GetOrderedQuery(IQueryable<Transaction> query, string orderBy, bool ascending = true)
+    protected override IQueryable<RecurringTransaction> GetOrderedQuery(IQueryable<RecurringTransaction> query, string orderBy, bool ascending = true)
     {
        switch (orderBy)
        {
@@ -46,13 +44,12 @@ public class TransactionService : CrudService<Transaction>
                 query = query.OrderByDescending(q => q.Amount);
             break;
 
-        case "date":
+        case "dayofmonth":
         if (ascending)
-            query = query.OrderBy(q => q.Date);
+            query = query.OrderBy(q => q.DayOfMonth);
         else
-            query = query.OrderByDescending(q => q.Date);
+            query = query.OrderByDescending(q => q.DayOfMonth);
         break;
-
         case "subcategory":
         if (ascending)
             query = query.OrderBy(q => q.Subcategory.Name);

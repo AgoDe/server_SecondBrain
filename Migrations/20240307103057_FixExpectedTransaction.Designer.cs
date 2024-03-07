@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SecondBrain.Data;
@@ -11,9 +12,11 @@ using SecondBrain.Data;
 namespace SecondBrain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240307103057_FixExpectedTransaction")]
+    partial class FixExpectedTransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -423,7 +426,7 @@ namespace SecondBrain.Migrations
                     b.Property<int>("DestinationAccountId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("GoalId")
+                    b.Property<int>("GoalId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Notes")
@@ -700,7 +703,9 @@ namespace SecondBrain.Migrations
 
                     b.HasOne("SecondBrain.Models.Entities.Goal", "Goal")
                         .WithMany()
-                        .HasForeignKey("GoalId");
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SecondBrain.Models.Entities.Account", "OriginAccount")
                         .WithMany("OutcomeTransfers")

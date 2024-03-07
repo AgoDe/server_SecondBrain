@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.Models;
-using SecondBrain.Models.Dto.Account;
+using SecondBrain.Models.Dto.RecurringTransaction;
 using SecondBrain.Models.Entities;
 using SecondBrain.Services;
 
@@ -15,26 +11,26 @@ namespace SecondBrain.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AccountController : ControllerBase
+    public class RecurringTransactionController : ControllerBase
     {
         protected ApiResponse _response;
-        private AccountService _accountService;
+        private RecurringTransactionService _transactionService;
         private IMapper _mapper;
-        public AccountController(AccountService accountService, IMapper mapper)
+        public RecurringTransactionController(RecurringTransactionService transactionService, IMapper mapper)
         {
             this._response = new();
-            _accountService = accountService;
+            _transactionService = transactionService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAccounts([FromQuery]QueryInputModel inputModel)
+        public async Task<ActionResult<ApiResponse>> GetRecurringTransactions([FromQuery]QueryInputModel inputModel)
         {
             try
             {
-                IEnumerable<Account> accounts = await _accountService.GetAllAsync(inputModel);
+                IEnumerable<RecurringTransaction> transactions = await _transactionService.GetAllAsync(inputModel);
 
-                _response.Result = _mapper.Map<List<AccountIndexDto>>(accounts);
+                _response.Result = _mapper.Map<List<RecurringTransactionIndexDto>>(transactions);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -48,7 +44,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse>> GetAccount(int id)
+        public async Task<ActionResult<ApiResponse>> GetRecurringTransaction(int id)
         {
             try {
 
@@ -59,15 +55,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var transaction = await _transactionService.GetAsync(id);
+                if (transaction == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<AccountDto>(account);
+                _response.Result = _mapper.Map<RecurringTransactionDto>(transaction);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -81,7 +77,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> CreateAccount([FromBody]AccountCreateDto modelDto)
+        public async Task<ActionResult<ApiResponse>> CreateRecurringTransaction([FromBody]RecurringTransactionCreateDto modelDto)
         {
             try
             {
@@ -93,9 +89,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(modelDto);
+                RecurringTransaction model = _mapper.Map<RecurringTransaction>(modelDto);
 
-                await _accountService.CreateAsync(model);
+                await _transactionService.CreateAsync(model);
                 
                 
                 _response.IsSuccess = true;
@@ -112,8 +108,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
     
-        [HttpDelete("{id:int}", Name = "DeleteAccount")]
-        public async Task<ActionResult<ApiResponse>> DeleteAccount(int id)
+        [HttpDelete("{id:int}", Name = "DeleteRecurringTransaction")]
+        public async Task<ActionResult<ApiResponse>> DeleteRecurringTransaction(int id)
         {
             try
             {
@@ -125,15 +121,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var transaction = await _transactionService.GetAsync(q => q.Id == id);
+                if (transaction == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                await _accountService.RemoveAsync(account);
+                await _transactionService.RemoveAsync(transaction);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -147,8 +143,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "UpdateAccount")]
-        public async Task<ActionResult<ApiResponse>> UpdateAccount(int id, [FromBody] AccountUpdateDto updateDto)
+        [HttpPut("{id:int}", Name = "UpdateRecurringTransaction")]
+        public async Task<ActionResult<ApiResponse>> UpdateRecurringTransaction(int id, [FromBody] RecurringTransactionUpdateDto updateDto)
         {
             try {
                 if (updateDto == null || id != updateDto.Id)
@@ -158,9 +154,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(updateDto);
+                RecurringTransaction model = _mapper.Map<RecurringTransaction>(updateDto);
 
-                await _accountService.UpdateAsync(model);
+                await _transactionService.UpdateAsync(model);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

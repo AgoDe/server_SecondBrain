@@ -1,19 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using SecondBrain.Models.Entities;
 
-namespace SecondBrain.Models.Entities
+namespace SecondBrain.Models.Dto.MoneyTransfer
 {
-    public class MoneyTransfer : Entity
+    public class MoneyTransferCreateDto
     {
         public string Description { get; set; }
-         [DataType(DataType.Date)]
+        [DataType(DataType.Date)]
         public DateTime Date { get; set; }
         public float Amount { get; set; }
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
         public int OriginAccountId { get; set; }
-        public Account OriginAccount { get; set; } = null!;
         public int DestinationAccountId { get; set; }
-        public Account DestinationAccount { get; set; } = null!;
         public int? GoalId { get; set; }
-        public Goal Goal { get; set; } = null!;
     }
 }

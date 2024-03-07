@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.Models;
-using SecondBrain.Models.Dto.Account;
+using SecondBrain.Models.Dto.Category;
+using SecondBrain.Models.Dto.Subcategory;
 using SecondBrain.Models.Entities;
 using SecondBrain.Services;
 
@@ -15,26 +16,26 @@ namespace SecondBrain.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AccountController : ControllerBase
+    public class SubcategoryController : ControllerBase
     {
         protected ApiResponse _response;
-        private AccountService _accountService;
+        private SubcategoryService _subcategoryService;
         private IMapper _mapper;
-        public AccountController(AccountService accountService, IMapper mapper)
+        public SubcategoryController(SubcategoryService subcategoryService, IMapper mapper)
         {
             this._response = new();
-            _accountService = accountService;
+            _subcategoryService = subcategoryService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAccounts([FromQuery]QueryInputModel inputModel)
+        public async Task<ActionResult<ApiResponse>> GetCategories([FromQuery]QueryInputModel inputModel)
         {
             try
             {
-                IEnumerable<Account> accounts = await _accountService.GetAllAsync(inputModel);
+                IEnumerable<Subcategory> subcategories = await _subcategoryService.GetAllAsync(inputModel, "Category");
 
-                _response.Result = _mapper.Map<List<AccountIndexDto>>(accounts);
+                _response.Result = _mapper.Map<List<SubcategoryIndexDto>>(subcategories);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -48,7 +49,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse>> GetAccount(int id)
+        public async Task<ActionResult<ApiResponse>> GetSubcategory(int id)
         {
             try {
 
@@ -59,15 +60,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var subcategory = await _subcategoryService.GetAsync(id, "Category");
+                if (subcategory == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<AccountDto>(account);
+                _response.Result = _mapper.Map<SubcategoryDto>(subcategory);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -81,7 +82,7 @@ namespace SecondBrain.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> CreateAccount([FromBody]AccountCreateDto modelDto)
+        public async Task<ActionResult<ApiResponse>> CreateSubcategory([FromBody]SubcategoryCreateDto modelDto)
         {
             try
             {
@@ -93,9 +94,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(modelDto);
+                Subcategory model = _mapper.Map<Subcategory>(modelDto);
 
-                await _accountService.CreateAsync(model);
+                await _subcategoryService.CreateAsync(model);
                 
                 
                 _response.IsSuccess = true;
@@ -112,8 +113,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
     
-        [HttpDelete("{id:int}", Name = "DeleteAccount")]
-        public async Task<ActionResult<ApiResponse>> DeleteAccount(int id)
+        [HttpDelete("{id:int}", Name = "DeleteSubcategory")]
+        public async Task<ActionResult<ApiResponse>> DeleteSubcategory(int id)
         {
             try
             {
@@ -125,15 +126,15 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var account = await _accountService.GetAsync(id);
-                if (account == null)
+                var subcategory = await _subcategoryService.GetAsync(q => q.Id == id);
+                if (subcategory == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _response.IsSuccess = false;
                     return NotFound(_response);
                 }
 
-                await _accountService.RemoveAsync(account);
+                await _subcategoryService.RemoveAsync(subcategory);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -147,8 +148,8 @@ namespace SecondBrain.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "UpdateAccount")]
-        public async Task<ActionResult<ApiResponse>> UpdateAccount(int id, [FromBody] AccountUpdateDto updateDto)
+        [HttpPut("{id:int}", Name = "UpdateSubcategory")]
+        public async Task<ActionResult<ApiResponse>> UpdateSubcategory(int id, [FromBody] SubcategoryUpdateDto updateDto)
         {
             try {
                 if (updateDto == null || id != updateDto.Id)
@@ -158,9 +159,9 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                Account model = _mapper.Map<Account>(updateDto);
+                Subcategory model = _mapper.Map<Subcategory>(updateDto);
 
-                await _accountService.UpdateAsync(model);
+                await _subcategoryService.UpdateAsync(model);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

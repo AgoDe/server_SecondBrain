@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SecondBrain.Models.Dto.Account;
+using SecondBrain.Models.Entities;
 
-namespace SecondBrain.Models.Entities
+namespace SecondBrain.Models.Dto.Goal
 {
-    public class Goal : Entity
+    public class GoalDto
     {
         public string Description { get; set; }
         public float Initial_Amount { get; set; }
         public float Target { get; set; }
-        public int AccountId { get; set; }
-        public Account Account { get; set; }
+        public AccountDto Account { get; set; }
     }
 
-    // TODO: aggiungere scadenza alla goal
 }

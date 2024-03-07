@@ -24,11 +24,11 @@ namespace SecondBrain.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetTransactions([FromQuery]QueryInputModel query)
+        public async Task<ActionResult<ApiResponse>> GetTransactions([FromQuery]QueryInputModel inputModel)
         {
             try
             {
-                IEnumerable<Transaction> transactions = await _transactionService.GetAllAsync(query);
+                IEnumerable<Transaction> transactions = await _transactionService.GetAllAsync(inputModel);
 
                 _response.Result = _mapper.Map<List<TransactionIndexDto>>(transactions);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -55,7 +55,7 @@ namespace SecondBrain.Controllers
                     return BadRequest(_response);
                 }
 
-                var transaction = await _transactionService.GetAsync(q => q.Id == id);
+                var transaction = await _transactionService.GetAsync(id);
                 if (transaction == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;

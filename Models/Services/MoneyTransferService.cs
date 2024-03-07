@@ -1,26 +1,24 @@
-using System.Linq.Expressions;
 using AutoMapper;
 using SecondBrain.Data;
-using SecondBrain.Models;
 using SecondBrain.Models.Entities;
 
 namespace SecondBrain.Services;
 
-public class TransactionService : CrudService<Transaction>
+public class MoneyTransferService : CrudService<MoneyTransfer>
 {
 
-    public TransactionService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
+    public MoneyTransferService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
     {      
     }
 
-    protected override IQueryable<Transaction> GetFilteredQuery(IQueryable<Transaction> query, string search)
+    protected override IQueryable<MoneyTransfer> GetFilteredQuery(IQueryable<MoneyTransfer> query, string search)
     {
         if (!string.IsNullOrEmpty(search))
         {
             query = query.Where(
                 q => q.Description.Contains(search) 
-                || q.Subcategory.Name.Contains(search) 
-                || q.Subcategory.Category.Name.Contains(search) 
+                || q.OriginAccount.Name.Contains(search) 
+                || q.DestinationAccount.Name.Contains(search) 
                 || q.Notes.Contains(search)
             );
         }
@@ -28,7 +26,7 @@ public class TransactionService : CrudService<Transaction>
         return query;
     }
 
-    protected override IQueryable<Transaction> GetOrderedQuery(IQueryable<Transaction> query, string orderBy, bool ascending = true)
+    protected override IQueryable<MoneyTransfer> GetOrderedQuery(IQueryable<MoneyTransfer> query, string orderBy, bool ascending = true)
     {
        switch (orderBy)
        {
@@ -53,17 +51,17 @@ public class TransactionService : CrudService<Transaction>
             query = query.OrderByDescending(q => q.Date);
         break;
 
-        case "subcategory":
+        case "originaccount":
         if (ascending)
-            query = query.OrderBy(q => q.Subcategory.Name);
+            query = query.OrderBy(q => q.OriginAccount.Name);
         else
-            query = query.OrderByDescending(q => q.Subcategory.Name);
+            query = query.OrderByDescending(q => q.OriginAccount.Name);
         break;
-        case "category":
+        case "destinationaccount":
         if (ascending)
-            query = query.OrderBy(q => q.Subcategory.Category.Name).ThenBy(q => q.Subcategory.Name);
+            query = query.OrderBy(q => q.DestinationAccount.Name);
         else
-            query = query.OrderByDescending(q => q.Subcategory.Category.Name).ThenBy(q => q.Subcategory.Name);
+            query = query.OrderByDescending(q => q.DestinationAccount.Name);
         break;
         
         default:

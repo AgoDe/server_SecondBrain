@@ -12,7 +12,6 @@ namespace SecondBrain.Models
     [ModelBinder(typeof(QueryInputModelBinder))]
     public class QueryInputModel
     {
-
         public QueryInputModel(string search, string orderBy, bool ascending, int pageNumber, int pageSize)
         {
             Search = search ?? "";
@@ -20,9 +19,8 @@ namespace SecondBrain.Models
             Ascending = ascending;
             PageNumber = Math.Max(1, pageNumber);
             
-            PageSize = pageSize;
+            PageSize = pageSize <= 0 ? 10 : pageSize;
             Offset = (PageNumber - 1) * PageSize;
-
         }
         public string Search { get; set; }
         public string OrderBy { get; set; }

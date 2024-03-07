@@ -30,7 +30,13 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SubcategoryService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<RecurringTransactionService>();
+builder.Services.AddScoped<ExpectedTransactionService>();
+builder.Services.AddScoped<MoneyTransferService>();
+builder.Services.AddScoped<GoalService>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 

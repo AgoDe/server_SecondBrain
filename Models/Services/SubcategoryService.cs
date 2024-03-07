@@ -1,32 +1,30 @@
-using System.Linq.Expressions;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using SecondBrain.Data;
 using SecondBrain.Models.Entities;
 
 namespace SecondBrain.Services;
 
-public class AccountService : CrudService<Account>
+public class SubcategoryService : CrudService<Subcategory>
 {
 
-    public AccountService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
+    public SubcategoryService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
     {      
     }
 
-    protected override IQueryable<Account> GetFilteredQuery(IQueryable<Account> query, string search)
+    protected override IQueryable<Subcategory> GetFilteredQuery(IQueryable<Subcategory> query, string search)
     {
         if (!string.IsNullOrEmpty(search))
         {
             query = query.Where(
-                q => q.Name.Contains(search) 
+                q => q.Name.Contains(search)
+                || q.Category.Name.Contains(search)
             );
         }
 
         return query;
     }
 
-    protected override IQueryable<Account> GetOrderedQuery(IQueryable<Account> query, string orderBy, bool ascending = true)
+    protected override IQueryable<Subcategory> GetOrderedQuery(IQueryable<Subcategory> query, string orderBy, bool ascending = true)
     {
        switch (orderBy)
        {
@@ -35,6 +33,12 @@ public class AccountService : CrudService<Account>
                 query = query.OrderBy(q => q.Name);
             else
                 query = query.OrderByDescending(q => q.Name);
+            break;
+        case "category":
+            if (ascending)
+                query = query.OrderBy(q => q.Category.Name).ThenBy(q => q.Name);
+            else
+                query = query.OrderByDescending(q => q.Category.Name).ThenBy(q => q.Name);
             break;
         
         default:

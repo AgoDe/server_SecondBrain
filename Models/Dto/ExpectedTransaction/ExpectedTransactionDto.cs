@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using SecondBrain.Models.Dto.Account;
 using SecondBrain.Models.Dto.Subcategory;
 using SecondBrain.Models.Enums;
 
-namespace SecondBrain.Models.Dto.Transaction
+namespace SecondBrain.Models.Dto.ExpectedTransaction
 {
-    public class TransactionDto
+    public class ExpectedTransactionDto
     {
         public string Description { get; set; }
+        
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
         public float Amount { get; set; }

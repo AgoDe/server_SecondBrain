@@ -1,20 +1,19 @@
-using System.Linq.Expressions;
+
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using SecondBrain.Data;
+
 using SecondBrain.Models.Entities;
 
 namespace SecondBrain.Services;
 
-public class AccountService : CrudService<Account>
+public class CategoryService : CrudService<Category>
 {
 
-    public AccountService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
+    public CategoryService(ApplicationDbContext db , IMapper mapper) : base(db, mapper)
     {      
     }
 
-    protected override IQueryable<Account> GetFilteredQuery(IQueryable<Account> query, string search)
+    protected override IQueryable<Category> GetFilteredQuery(IQueryable<Category> query, string search)
     {
         if (!string.IsNullOrEmpty(search))
         {
@@ -26,7 +25,7 @@ public class AccountService : CrudService<Account>
         return query;
     }
 
-    protected override IQueryable<Account> GetOrderedQuery(IQueryable<Account> query, string orderBy, bool ascending = true)
+    protected override IQueryable<Category> GetOrderedQuery(IQueryable<Category> query, string orderBy, bool ascending = true)
     {
        switch (orderBy)
        {
