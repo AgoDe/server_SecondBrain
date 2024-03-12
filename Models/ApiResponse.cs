@@ -1,4 +1,5 @@
 using System.Net;
+using SecondBrain.Models.Dto;
 
 namespace SecondBrain.Models
 {
@@ -12,5 +13,7 @@ namespace SecondBrain.Models
         public bool IsSuccess { get; set; } = true;
         public List<string> ErrorMessages { get; set; }
         public object Result { get; set; }
+        public PaginationDto Pagination { get; set; }
+        public QueryDto Query { get; set; }
     }
 }

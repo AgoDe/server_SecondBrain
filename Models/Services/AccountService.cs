@@ -19,7 +19,7 @@ public class AccountService : CrudService<Account>
         if (!string.IsNullOrEmpty(search))
         {
             query = query.Where(
-                q => q.Name.Contains(search) 
+                q => q.Name.ToLower().Contains(search.ToLower()) 
             );
         }
 

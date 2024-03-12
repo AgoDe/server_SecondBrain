@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SecondBrain.Data;
 using SecondBrain.Models;
+using SecondBrain.Models.Dto;
 using SecondBrain.Models.Entities;
+using SecondBrain.Models.InputModel;
 
 namespace SecondBrain.Services;
 
@@ -33,7 +35,7 @@ public class CrudService<T> where T : class, IEntity
             query = query.AsNoTracking();
         }
 
-        if (filter == null)
+        if (filter != null)
         {
             query = query.Where(filter);
         }
@@ -113,6 +115,32 @@ public class CrudService<T> where T : class, IEntity
         query = GetPagedQuery(query, inputModel.PageNumber, inputModel.PageSize);
 
         return await query.ToListAsync();
+    }
+    public virtual async Task<IndexResultModel> GetAllAsync(QueryDto queryDto, PaginationInputModel pagination, string? includeProperties = null)
+    {
+        IQueryable<T> query = GetDbSet();
+
+        query = GetFilteredQuery(query, queryDto.Search);
+
+        if (includeProperties != null)
+        {
+            query = IncludeProperties(query, includeProperties);
+        }
+
+        query = GetOrderedQuery(query, queryDto.OrderBy, queryDto.Ascending);
+        int totalCount = await query.CountAsync();
+        query = GetPagedQuery(query, pagination.PageNumber, pagination.PageSize);
+
+        PaginationDto paginationDto = new(pagination.PageNumber, pagination.PageSize, totalCount);
+
+        List<T> list = await query.ToListAsync();
+        
+        return new IndexResultModel
+        {
+            Result = list,
+            Pagination = paginationDto,
+            Query = queryDto
+        };
     }
 
     public virtual async Task<List<T>> GetAllAsync(

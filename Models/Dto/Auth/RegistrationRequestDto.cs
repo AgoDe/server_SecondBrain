@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SecondBrain.Models.Dto.User
+namespace SecondBrain.Models.Dto.Auth
 {
     public class RegistrationRequestDto
     {
